@@ -1,6 +1,6 @@
 # H-003: overnight drift, buy the close and sell the open
 
-- **Status:** untested <!-- untested | testing | supported | rejected | inconclusive -->
+- **Status:** testing <!-- untested | testing | supported | rejected | inconclusive -->
 - **Written:** 2026-11-01 (before any testing)
 
 No close-to-open return has been looked at. The in-sample years were already used by H-001 (full-day trades) and H-002 (the 10:00 return and the 15:30–16:00 window). So it's known that 2015–2021 mostly rose, and that the last half hour drifted down. Validation and holdout are still untouched.
@@ -72,4 +72,6 @@ Even if it passes, the result is fragile if a handful of nights drive it. The te
 - **Reported:** trade count, win rate, average win and loss in bp, expectancy in bp and in points, its bootstrap 95% CI, max drawdown in bp, expectancy without the 10 best and without the 10 worst trades, and the regular-hours benchmark.
 
 ## Result
-Filled in after testing.
+**Passed in sample, steps 1 and 2** (tested 2026-11-01). After costs: 1,523 nights, 57.3% win rate, expectancy **+5.20 bp** (95% CI +1.37 bp to +8.97 bp), against +2.75 bp for the regular-hours leg. Validation not yet run.
+
+Full results: [`results.md`](results.md).
