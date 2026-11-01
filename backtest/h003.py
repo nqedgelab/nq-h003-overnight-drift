@@ -122,8 +122,9 @@ def report(trades: pd.DataFrame) -> str:
     years = pd.to_datetime(trades["session"]).dt.year
     for y in sorted(years.unique()):
         lines.append(row(str(y), trades[years == y]))
-    lines.append(row("Before 2020", trades[years < 2020]))
-    lines.append(row("2020 on", trades[years >= 2020]))
+    if (years < 2020).any() and (years >= 2020).any():
+        lines.append(row("Before 2020", trades[years < 2020]))
+        lines.append(row("2020 on", trades[years >= 2020]))
     w = trades.dropna(subset=["vol_prior"])
     cuts = w["vol_prior"].quantile([1 / 3, 2 / 3]).to_numpy()
     lines.append(row("Low volatility", w[w.vol_prior <= cuts[0]]))

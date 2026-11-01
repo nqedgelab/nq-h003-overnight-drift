@@ -1,6 +1,6 @@
 # H-003 results: overnight drift
 
-**Status: passed in sample (steps 1 and 2). Validation not yet run.**
+**Verdict: rejected at step 3 (validation).** It passed in sample, then lost money in 2022–2023. The holdout period was not used, so it stays unseen.
 
 Run on 2026-11-01 with `python backtest/h003.py in_sample`. The rules are exactly those committed in [`hypothesis.md`](hypothesis.md) before this run, and the rule logic is unit-tested in [`backtest/test_h003.py`](backtest/test_h003.py).
 
@@ -71,6 +71,43 @@ The overnight leg carried 61% of the return with 38% of the variance, about 2.5 
 
 Every year's expectancy is zero or above, but only 2017's CI excludes zero. High-volatility and entry-day-up nights look stronger. Those groups come from this data, and the rules are frozen. Validation tests the rule as written, not its best-looking slice.
 
-## Next
+## Validation, 2022–2023, after costs
 
-Step 3: run validation (2022–2023) once, with the rules unchanged. It's the first use of the validation period by any hypothesis.
+Run once on 2026-11-01 with `python backtest/h003.py validation`, with the rules unchanged. It was the first use of the validation period by any hypothesis.
+
+| Measure | In sample | **Validation** |
+|:---|---:|---:|
+| Trades (nights) | 1,523 | 433 |
+| Win rate | 57.3% | 48.7% |
+| Average win | 47.6 bp | 63.4 bp |
+| Average loss | 51.8 bp | 64.4 bp |
+| **Expectancy** | +5.20 bp | **−2.14 bp** |
+| 95% bootstrap CI | +1.37 to +8.97 | −10.42 to +6.04 |
+| Expectancy in points | +4.82 | −3.09 |
+| Without the 10 best nights | +3.04 bp | −8.38 bp |
+| Without the 10 worst nights | +7.83 bp | +3.20 bp |
+| Before costs | +6.34 bp | −1.58 bp |
+| Regular-hours benchmark | +2.75 bp | +2.95 bp |
+| Max drawdown | 1,792 bp | 2,096 bp |
+
+Step 3 needed validation expectancy above zero. It was −2.14 bp, so H-003 is **rejected**. It also lost to the regular-hours leg, which earned +2.95 bp.
+
+| Group | Trades | Win rate | Avg win bp | Avg loss bp | Expectancy bp | 95% CI | Regular hours bp |
+|:---|---:|---:|---:|---:|---:|:---:|---:|
+| All | 433 | 48.7% | 63.4 | 64.4 | −2.14 | [−10.42, +6.04] | +2.95 |
+| Weekend holds | 83 | 48.2% | 42.0 | 57.1 | −9.34 | [−23.85, +5.54] | +14.99 |
+| Weeknights | 350 | 48.9% | 68.4 | 66.2 | −0.44 | [−9.85, +9.24] | +0.42 |
+| 2022 | 218 | 45.9% | 78.5 | 78.3 | −6.40 | [−20.53, +7.89] | −5.56 |
+| 2023 | 215 | 51.6% | 49.8 | 48.7 | +2.17 | [−6.38, +11.04] | +11.58 |
+| Low volatility | 138 | 52.9% | 44.5 | 42.3 | +3.62 | [−5.74, +13.21] | +3.51 |
+| Middle volatility | 138 | 46.4% | 60.2 | 58.7 | −3.59 | [−16.07, +9.45] | +2.21 |
+| High volatility | 138 | 46.4% | 87.1 | 87.4 | −6.47 | [−25.99, +13.54] | +8.75 |
+| Entry day up | 232 | 47.8% | 54.3 | 63.7 | −7.27 | [−17.19, +2.80] | +0.20 |
+| Entry day down | 201 | 49.8% | 73.5 | 65.3 | +3.78 | [−9.32, +17.19] | +6.08 |
+
+## What validation says
+
+- **It wasn't only the bear market.** 2022 fell, and the overnight leg lost 6.40 bp a night. But 2023 rose strongly, and overnight still made only +2.17 bp while regular hours made +11.58 bp. In a rising year, the gains came in the day session, which is the opposite of the claim.
+- **The risk-adjusted case reversed too.** In sample, overnight carried 61% of the return with 38% of the variance. In validation, overnight gross return was −1.70 bp against +3.51 bp for regular hours, with overnight carrying 29% of the variance.
+- **The in-sample slices that looked strongest failed.** High-volatility nights went from +13.64 bp to −6.47 bp, and entry-day-up nights from +7.79 bp to −7.27 bp. Using them as filters after seeing the in-sample table would have made things worse. That's the reason the rules were frozen.
+- **The in-sample pass was most likely drift plus 2020.** Before 2020 the in-sample result already had a CI including zero.
